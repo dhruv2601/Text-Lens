@@ -1,5 +1,6 @@
 package datapole.ocrtext;
 
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Context;
@@ -13,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.amulyakhare.textdrawable.TextDrawable;
 
 import java.util.ArrayList;
 
@@ -38,6 +37,8 @@ public class allCardRecyclerViewAdapter
             .OnClickListener {
         ImageView imageDrawable;
         TextView txtDate;
+        TextView txtName;
+        ImageView txtShare;
 //        TextView txtPosition;
 //        TextView txtCompany;
 
@@ -45,6 +46,15 @@ public class allCardRecyclerViewAdapter
             super(itemView);
             imageDrawable = (ImageView) itemView.findViewById(R.id.img_text);
             txtDate = (TextView) itemView.findViewById(R.id.txt_date);
+            txtName = (TextView) itemView.findViewById(R.id.txt_name);
+            txtShare = (ImageView) itemView.findViewById(R.id.share);
+
+            txtShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                            // TO SHARE THE FILE ONCE YOU CAN ACTUALLY SAVE IT LOL
+                }
+            });
 
             Log.d(TAG, "dataObjHolderALLCARDS");
             itemView.setOnClickListener(this);
@@ -52,14 +62,34 @@ public class allCardRecyclerViewAdapter
 
         @Override
         public void onClick(View v) {
-            Intent i = new Intent(v.getContext(), ShowCardDetails.class);
-            int pos = getAdapterPosition();
-            i.putExtra("CardPosition", pos);
 
-//            i.putExtra("")                                    // yahan pe sending timke par snd the phone no.s and ither details
-            v.getContext().startActivity(i);
+            SharedPreferences pref = v.getContext().getSharedPreferences("txtURI", 0);
+            Log.d(TAG,"path:: "+pref.getString("path" + String.valueOf(getAdapterPosition()), "0"));
 
-            myClickListener.onItemClick(getAdapterPosition(), v);
+//            Intent geoIntent = new Intent(
+//                    android.content.Intent.ACTION_VIEW, Uri
+//                    .parse(pref.getString("path" + String.valueOf(getAdapterPosition()), "0")));        // intent to open that file
+//            v.getContext().startActivity(geoIntent);
+
+//            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//            intent.addCategory(Intent.CATEGORY_OPENABLE);
+//            intent.setType("*/*");
+//            String[] mimetypes = {"image/*", "video/*"};
+//            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//            v.getContext().startActivity(intent);
+
+            int ind = pref.getInt("ind",0);
+//            Intent i = new Intent();
+//            i.setAction(android.content.Intent.ACTION_VIEW);
+//            i.setData(Uri.parse(pref.getString("path"+String.valueOf(ind-1-getAdapterPosition()),null)));
+//            v.getContext().startActivity(i);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri uri = Uri.parse(pref.getString("path"+String.valueOf(ind-1-getAdapterPosition()),null));
+            intent.setDataAndType(uri, "text/plain");
+            v.getContext().startActivity(intent);
+
+//            myClickListener.onItemClick(getAdapterPosition(), v);
         }
     }
 
@@ -87,30 +117,15 @@ public class allCardRecyclerViewAdapter
         return dataObjectHolder;
     }
 
-    SharedPreferences txtURI = view1.getContext().getSharedPreferences("txtURI", 0);
-    final int ind = txtURI.getInt("ind", 0);
+//    SharedPreferences txtURI = view1.getContext().getSharedPreferences("txtURI", 0);
+//    final int ind = txtURI.getInt("ind", 0);
 
     @Override
     public void onBindViewHolder(DataObjectHolder holder, int position) {
-        holder.txtDate.setText(mCardSet.get(position).getTxtName());
-
         Log.d(TAG, "mCardValS: " + mCardSet.get(position).getTxtName());
-
-//        if (mCardSet.get(position).getmDrawableImage() != 0) {
-//            holder.imageDrawable.setImageResource(mCardSet.get(position).getmDrawableImage());
-//        } else {
-//            char ch = 'A';
-//            if (mCardSet.get(position).getTxtName().length() > 0) {
-//                ch = mCardSet.get(position).getTxtName().charAt(0);
-//            }
-//            TextDrawable drawable = TextDrawable.builder().beginConfig().fontSize(100).bold().endConfig()
-//                    .buildRect(String.valueOf(ch).toUpperCase(), Color.rgb(0, 105, 0));
-//            holder.imageDrawable.setImageDrawable(drawable);
-//        }
-
-        holder.imageDrawable.setImageResource(txtURI.getString("uri" +position));       // setImageResource from url ka code
-
-        holder.txtDate.setText(txtURI.getString("date"+position,null));
+        holder.imageDrawable.setImageURI(Uri.parse(mCardSet.get(position).getmDrawableImage()));       // setImageResource from url ka code
+        holder.txtDate.setText(mCardSet.get(position).getTxtDate());
+        holder.txtName.setText(mCardSet.get(position).getTxtName());
     }
 
     public void addItem(CardObject1 cardObject, int index) {

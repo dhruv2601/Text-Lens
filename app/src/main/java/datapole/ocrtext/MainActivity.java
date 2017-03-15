@@ -10,18 +10,32 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,9 +43,10 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
     private FloatingActionButton fabCamera;
@@ -55,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    public ActionBarDrawerToggle toggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new allCardRecyclerViewAdapter(getDataSet(), this);
-
 
         fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
         fabDon = (FloatingActionButton) findViewById(R.id.fab_donate);
@@ -98,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-
                 try {
                     Intent intent = new Intent();
                     intent.setType("image/*");
@@ -187,6 +202,28 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(receiver1, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(
+                this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_menu, null);
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, Color.WHITE);
+        toggle.setHomeAsUpIndicator(drawable);
+
+//        toggle.setDrawerIndicatorEnabled(true);
+        drawer.setDrawerListener(toggle);
+
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -225,5 +262,98 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please try again", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private ArrayList<CardObject1> getDataSet() {
+        ArrayList<CardObject1> result = new ArrayList<>();
+        SharedPreferences txtURI = this.getSharedPreferences("txtURI", 0);
+        final int ind = txtURI.getInt("ind", 0);
+        for (int i = 0; i < ind; i++) {
+            CardObject1 obj = new CardObject1(txtURI.getString("uri" + i, ""), txtURI.getString("filename" + i, ""), txtURI.getString("date" + i, ""));
+            result.add(obj);
+        }
+
+        ArrayList<CardObject1> resultFinal = new ArrayList<>();
+        for (int i = result.size() - 1; i >= 0; i--) {
+            resultFinal.add(result.get(i));
+        }
+        return resultFinal;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        if (toggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        int id = item.getItemId();
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        toggle.syncState();
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+        if (id == R.id.about) {
+//            Intent i = new Intent(this, AboutActivity.class);
+//            startActivity(i);
+            //Add an activity
+        } else if (id == R.id.buy_cards) {
+//            if (b) {
+//                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+//
+//                b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
+//                if (b) {
+//                    Intent i = new Intent(this, BillingActLib.class);
+//                    startActivity(i);
+//                } else {
+//                    startActivityForResult(new Intent(
+//                            Settings.ACTION_WIFI_SETTINGS), 0);
+//                }
+//            } else {
+//                startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
+//            }
+        } else if (id == R.id.invite) {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+            shareIntent.setType("text/html");
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, ("Have you tried the Text Extraction from image app?" + "\n"));   // instead send the description here
+
+            shareIntent.putExtra(Intent.EXTRA_TEXT, " Have you tried the Text Lens app?" + "\n" + "Scan all the documents and extract the editable text, save in Dropbox, and Share. " + "\n" + "https://play.google.com/store/apps/details?id=datapole.ocrtext");
+            this.startActivity(Intent.createChooser(shareIntent, "Invite to use Text Lens"));
+        } else if (id == R.id.support) {
+            Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "dhruvrathi15@gmail.com", null));
+            startActivity(Intent.createChooser(i, "Send Email..."));
+        } else if (id == R.id.aboutMe) {
+//            Intent i = new Intent(MainActivity1.this, AboutDeveloper.class);
+//            startActivity(i);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

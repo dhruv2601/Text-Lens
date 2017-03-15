@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
@@ -90,27 +92,44 @@ public class OCRAct extends AppCompatActivity {
 //                String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
                         try {
 //                    String path = Environment.getExternalStorageDirectory().toString() + "/Text_Lens/" + str_name[0] + ".txt";
-                            String path = "file:///storage/emulated/0/mounted/Text_Lens/" + str_name[0] + ".txt";
+                            String path = "file:///storage/emulated/0/TextLens/" + str_name[0] + ".txt";
                             String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
 
+                            Log.d(TAG, "fileName: " + str_name[0]);
                             editor.putString("filename" + String.valueOf(ind), str_name[0]);
                             editor.putString("path" + String.valueOf(ind), path);         // first saved at 0
                             editor.putString("uri" + String.valueOf(ind), String.valueOf(MainActivity.cropURI));
                             editor.putInt("ind", ind + 1);
-                            editor.putString("date"+ind,date);
+                            editor.putString("date" + ind, date);
                             editor.commit();
 
                             String fileName = str_name[0];
                             String content = editText.getText().toString();
-
-                            FileOutputStream outputStream = null;
                             try {
-                                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
-                                outputStream.write(content.getBytes());
-                                outputStream.close();
-                            } catch (Exception e) {
+                                File root = new File(Environment.getExternalStorageDirectory(), "TextLens");
+                                if (!root.exists()) {
+                                    root.mkdirs();
+                                }
+                                File gpxfile = new File(root, str_name[0] + ".txt");
+                                FileWriter writer = new FileWriter(gpxfile);
+                                writer.append(editText.getText().toString());
+                                writer.flush();
+                                writer.close();
+                                Toast.makeText(OCRAct.this, "Saved", Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
+
+
+//                            FileOutputStream outputStream = null;
+//                            try {
+//                                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+//                                outputStream.write(content.getBytes());
+//                                outputStream.close();
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+
 
 //                    File myFile = new File(path);                                   //  check here
 //                    myFile.createNewFile();
@@ -151,7 +170,7 @@ public class OCRAct extends AppCompatActivity {
                 if (flag[0] == 1) {
                     MainActivity.t1.stop();
 
-                                            //      RELEASE MEDIA PLAYER HERE
+                    //      RELEASE MEDIA PLAYER HERE
 
                 } else {
                     flag[0] = 1;
@@ -266,6 +285,11 @@ public class OCRAct extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             pDial.dismiss();
             editText.setText(ocrStr);
+            View view = OCRAct.this.getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
             super.onPostExecute(aVoid);
         }
     }

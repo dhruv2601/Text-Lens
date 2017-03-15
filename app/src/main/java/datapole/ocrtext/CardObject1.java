@@ -5,29 +5,22 @@ package datapole.ocrtext;
  */
 
 public class CardObject1 {
-    private int mDrawableImage;
+    private String mDrawableImage;
     private String txtName;
-    private String txtPosition;
-    private String txtCompany;
+    private String txtDate;
 
-    CardObject1(int drawableImage, String name, String position, String company) {
+    CardObject1(String drawableImage, String name, String date) {
         mDrawableImage = drawableImage;
         txtName = name;
-        txtPosition = position;
-        txtCompany = company;
+        txtDate= date;
     }
 
-    public int getmDrawableImage() {
+    public String getmDrawableImage() {
         return mDrawableImage;
     }
 
-    // / return 0 here if image is not set by user
-    public void setmDrawableImage(int mDrawableImage) {
+    public void setmDrawableImage(String mDrawableImage) {
         this.mDrawableImage = mDrawableImage;
-    }
-
-    public void setmService(String mService) {
-        this.txtName = mService;
     }
 
     public String getTxtName() {
@@ -38,20 +31,12 @@ public class CardObject1 {
         this.txtName = txtName;
     }
 
-    public String getTxtPosition() {
-        return txtPosition;
+    public String getTxtDate() {
+        return txtDate;
     }
 
-    public void setTxtPosition(String txtPosition) {
-        this.txtPosition = txtPosition;
-    }
-
-    public String getTxtCompany() {
-        return txtCompany;
-    }
-
-    public void setTxtCompany(String txtCompany) {
-        this.txtCompany = txtCompany;
+    public void setTxtDate(String txtDate) {
+        this.txtDate = txtDate;
     }
 }
 
