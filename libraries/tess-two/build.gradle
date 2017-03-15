@@ -1,0 +1,30 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.2'
+    }
+}
+apply plugin: 'com.android.library'
+android {
+
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 25
+    }
+
+    sourceSets.main {
+        manifest.srcFile 'AndroidManifest.xml'
+        java.srcDirs = ['src']
+        resources.srcDirs = ['src']
+        res.srcDirs = ['res']
+        jniLibs.srcDirs = ['libs']
+    }
+}
+dependencies {
+}
