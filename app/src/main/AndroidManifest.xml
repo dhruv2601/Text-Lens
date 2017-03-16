@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
     <uses-permission android:name="com.android.vending.BILLING" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -27,17 +27,20 @@
         </activity>
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity" />
         <activity android:name=".OCRAct" />
-        <activity android:name=".BillingActivity"></activity>
+        <activity android:name=".BillingActivity" />
         <activity
             android:name="com.dropbox.client2.android.AuthActivity"
+            android:configChanges="orientation|keyboard"
             android:launchMode="singleTask"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:configChanges="orientation|keyboard">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
+
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="db-80obijhq074fhxn" />
+
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -47,7 +50,9 @@
         <activity
             android:name=".AboutActivity"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name=".ActivityIntro"
+            android:theme="@style/Theme.Intro"></activity>
     </application>
 
 </manifest>

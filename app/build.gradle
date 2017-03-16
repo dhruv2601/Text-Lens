@@ -32,6 +32,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'com.anjlab.android.iab.v3:library:1.0.+'
     compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.heinrichreimersoftware:material-intro:1.6'
 
     compile files('libs/dropbox-android-sdk-1.6.3.jar')
     compile files('libs/json_simple-1.1.jar')

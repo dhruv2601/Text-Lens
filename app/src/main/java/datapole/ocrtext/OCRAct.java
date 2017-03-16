@@ -62,7 +62,6 @@ public class OCRAct extends AppCompatActivity {
     private boolean mLoggedIn;
     public int cmon = 0;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);

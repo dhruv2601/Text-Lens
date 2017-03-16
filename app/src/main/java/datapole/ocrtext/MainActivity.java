@@ -79,6 +79,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sref;
+        sref = MainActivity.this.getSharedPreferences("entered", 0);
+        SharedPreferences.Editor editor1 = sref.edit();
+        if (sref.getBoolean("entered", false) == false) {
+//            editor1.putBoolean("entered",true);
+            Intent i = new Intent(MainActivity.this, ActivityIntro.class);
+            startActivity(i);
+        }
+
+
         mRecyclerView = (RecyclerView) findViewById(R.id.all_cards_list_rv);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -149,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             File file = new File(Environment.getExternalStorageDirectory().toString() + "/BusinessCardScanner/tessdata");
             if (file.exists()) {
-                Toast.makeText(this, "Data exists", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Data exists", Toast.LENGTH_SHORT).show();
                 SharedPreferences pref2 = this.getSharedPreferences("engDataSet", 0);
                 SharedPreferences.Editor edit = pref2.edit();
                 edit.putString("dataSetUrl", "file:///storage/emulated/0/mounted/tessdata/eng.traineddata");
@@ -249,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");//this is your bitmap image and now you can do whatever you want with this
             Uri imageUri = data.getData();
-            simpleURI  = imageUri;
+            simpleURI = imageUri;
             Log.d(TAG, "imageURI: " + imageUri);
             CropImage.activity(imageUri)                    // starting a new crop image activity
                     .setGuidelines(CropImageView.Guidelines.ON)
