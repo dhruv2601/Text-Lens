@@ -3,6 +3,7 @@ package datapole.ocrtext;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -74,6 +75,20 @@ public class OCRAct extends AppCompatActivity {
         final int ind = txtURI.getInt("ind", 0);
         final SharedPreferences.Editor editor = txtURI.edit();
 
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+                shareIntent.setType("text/html");
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, ("https://play.google.com/store/apps/details?id=datapole.ocrtext" + "\n"));   // instead send the description here
+
+                shareIntent.putExtra(Intent.EXTRA_TEXT, editText.getText().toString());
+                OCRAct.this.startActivity(Intent.createChooser(shareIntent, "Share scanned text"));
+            }
+        });
+
         txtFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,14 +106,14 @@ public class OCRAct extends AppCompatActivity {
 
 //                String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
                         try {
-//                    String path = Environment.getExternalStorageDirectory().toString() + "/Text_Lens/" + str_name[0] + ".txt";
                             String path = "file:///storage/emulated/0/TextLens/" + str_name[0] + ".txt";
                             String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
 
                             Log.d(TAG, "fileName: " + str_name[0]);
                             editor.putString("filename" + String.valueOf(ind), str_name[0]);
                             editor.putString("path" + String.valueOf(ind), path);         // first saved at 0
-                            editor.putString("uri" + String.valueOf(ind), String.valueOf(MainActivity.cropURI));
+                            editor.putString("uri" + String.valueOf(ind), String.valueOf(MainActivity.simpleURI));
+                            Log.d(TAG,"cropUri: "+String.valueOf(MainActivity.simpleURI));
                             editor.putInt("ind", ind + 1);
                             editor.putString("date" + ind, date);
                             editor.commit();
@@ -169,8 +184,6 @@ public class OCRAct extends AppCompatActivity {
             public void onClick(View view) {
                 if (flag[0] == 1) {
                     MainActivity.t1.stop();
-
-                    //      RELEASE MEDIA PLAYER HERE
 
                 } else {
                     flag[0] = 1;

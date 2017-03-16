@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             .getExternalStorageDirectory().toString();
     public static final String DATA_PATH_EXT_BUS = "/BusinessCardScanner/";
     public static Uri cropURI;
+    public static Uri simpleURI;
     public static SharedPreferences sref;
     private DownloadManager dm;
     private long enqueue;
@@ -235,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");//this is your bitmap image and now you can do whatever you want with this
             Uri imageUri = data.getData();
+            simpleURI  = imageUri;
             Log.d(TAG, "imageURI: " + imageUri);
             CropImage.activity(imageUri)                    // starting a new crop image activity
                     .setGuidelines(CropImageView.Guidelines.ON)
@@ -243,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
             Uri selectedImageUri = data.getData();
+            simpleURI = selectedImageUri;
             CropImage.activity(selectedImageUri)                    // starting a new crop image activity
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .start(this);

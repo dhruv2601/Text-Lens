@@ -12,7 +12,6 @@
         android:id="@+id/all_cards_list_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="10dp"
         android:scrollbars="vertical" />
 
     <android.support.design.widget.FloatingActionButton

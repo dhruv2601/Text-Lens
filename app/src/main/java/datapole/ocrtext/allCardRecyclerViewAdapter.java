@@ -15,6 +15,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
@@ -39,20 +46,88 @@ public class allCardRecyclerViewAdapter
         TextView txtDate;
         TextView txtName;
         ImageView txtShare;
-//        TextView txtPosition;
-//        TextView txtCompany;
+        ImageView imgInfo;
 
-        public DataObjectHolder(View itemView) {
+        public String readFromFile(Context context, String path) {
+
+            String ret = "";
+            try {
+                InputStream inputStream = context.openFileInput(path);
+
+                if (inputStream != null) {
+                    FileInputStream fis = new FileInputStream(new File(path));  // 2nd line
+                    InputStreamReader inputStreamReader = new InputStreamReader(fis);
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                    String receiveString = "";
+                    StringBuilder stringBuilder = new StringBuilder();
+
+                    while ((receiveString = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(receiveString);
+                    }
+                    inputStream.close();
+                    ret = stringBuilder.toString();
+                }
+            } catch (FileNotFoundException e) {
+                Log.e("login activity", "File not found: " + e.toString());
+            } catch (IOException e) {
+                Log.e("login activity", "Can not read file: " + e.toString());
+            }
+
+            return ret;
+        }
+
+        public DataObjectHolder(final View itemView) {
             super(itemView);
             imageDrawable = (ImageView) itemView.findViewById(R.id.img_text);
             txtDate = (TextView) itemView.findViewById(R.id.txt_date);
             txtName = (TextView) itemView.findViewById(R.id.txt_name);
             txtShare = (ImageView) itemView.findViewById(R.id.share);
+            imgInfo = (ImageView) itemView.findViewById(R.id.info);
+
+            imgInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // show info dialog
+                }
+            });
+
+            imageDrawable.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedPreferences pref = itemView.getContext().getSharedPreferences("txtURI", 0);
+                    int ind = pref.getInt("ind", 0);
+                    Uri uri = Uri.parse(pref.getString("uri" + String.valueOf(ind - 1 - getAdapterPosition()), null));
+                    Log.d(TAG, "uri:: " + uri);
+
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, "image/*");
+                    itemView.getContext().startActivity(intent);
+                }
+            });
 
             txtShare.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                            // TO SHARE THE FILE ONCE YOU CAN ACTUALLY SAVE IT LOL
+                    SharedPreferences pref = itemView.getContext().getSharedPreferences("txtURI", 0);
+                    int ind = pref.getInt("ind", 0);
+                    String temp = pref.getString("filename" + String.valueOf(ind - 1 - getAdapterPosition()), null);
+                    temp += ".txt";
+                    Uri uri = Uri.parse(temp);
+                    Log.d(TAG, "uri:: " + uri);
+
+                    String data = readFromFile(view.getContext(), String.valueOf(uri));
+                    Log.d(TAG, "data: " + data);
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+                    shareIntent.setType("text/html");
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, ("https://play.google.com/store/apps/details?id=datapole.ocrtext" + "\n"));   // instead send the description here
+
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, data + "\n\n" + "Download the app at https://play.google.com/store/apps/details?id=datapole.ocrtext");
+                    view.getContext().startActivity(Intent.createChooser(shareIntent, "Share scanned text"));
+
+                    // TO SHARE THE FILE ONCE YOU CAN ACTUALLY SAVE IT LOL
                 }
             });
 
@@ -64,28 +139,11 @@ public class allCardRecyclerViewAdapter
         public void onClick(View v) {
 
             SharedPreferences pref = v.getContext().getSharedPreferences("txtURI", 0);
-            Log.d(TAG,"path:: "+pref.getString("path" + String.valueOf(getAdapterPosition()), "0"));
+            Log.d(TAG, "path:: " + pref.getString("path" + String.valueOf(getAdapterPosition()), "0"));
 
-//            Intent geoIntent = new Intent(
-//                    android.content.Intent.ACTION_VIEW, Uri
-//                    .parse(pref.getString("path" + String.valueOf(getAdapterPosition()), "0")));        // intent to open that file
-//            v.getContext().startActivity(geoIntent);
-
-//            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//            intent.addCategory(Intent.CATEGORY_OPENABLE);
-//            intent.setType("*/*");
-//            String[] mimetypes = {"image/*", "video/*"};
-//            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-//            v.getContext().startActivity(intent);
-
-            int ind = pref.getInt("ind",0);
-//            Intent i = new Intent();
-//            i.setAction(android.content.Intent.ACTION_VIEW);
-//            i.setData(Uri.parse(pref.getString("path"+String.valueOf(ind-1-getAdapterPosition()),null)));
-//            v.getContext().startActivity(i);
-
+            int ind = pref.getInt("ind", 0);
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri uri = Uri.parse(pref.getString("path"+String.valueOf(ind-1-getAdapterPosition()),null));
+            Uri uri = Uri.parse(pref.getString("path" + String.valueOf(ind - 1 - getAdapterPosition()), null));
             intent.setDataAndType(uri, "text/plain");
             v.getContext().startActivity(intent);
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Text Lens(OCR Text Scanner)</string>
+    <string name="app_name">Text Lens(OCR Scanner)</string>
     <string name="hello">Hello World, DatumDroidOCRActivity!</string>
     <string name="button_text">OCR!</string>
     <string name="text_hint">OCRed Text will appear here</string>
