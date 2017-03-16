@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    public boolean b;
 
     public ActionBarDrawerToggle toggle;
 
@@ -87,6 +88,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
         fabDon = (FloatingActionButton) findViewById(R.id.fab_donate);
         fabGall = (FloatingActionButton) findViewById(R.id.fab_gall);
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
 
         t1 = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -124,6 +129,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 } catch (Exception e) {
                     Log.e(e.getClass().getName(), e.getMessage(), e);
                 }
+            }
+        });
+
+        fabDon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, BillingActivity.class);
+                startActivity(i);
             }
         });
 
@@ -319,25 +332,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.about) {
-//            Intent i = new Intent(this, AboutActivity.class);
-//            startActivity(i);
-            //Add an activity
+            Intent i = new Intent(this, AboutActivity.class);
+            startActivity(i);
         } else if (id == R.id.buy_cards) {
-//            if (b) {
-//                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-//
-//                b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
-//                if (b) {
-//                    Intent i = new Intent(this, BillingActLib.class);
-//                    startActivity(i);
-//                } else {
-//                    startActivityForResult(new Intent(
-//                            Settings.ACTION_WIFI_SETTINGS), 0);
-//                }
-//            } else {
-//                startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
-//            }
+            if (b) {
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+                b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
+                if (b) {
+                    Intent i = new Intent(this, BillingActivity.class);
+                    startActivity(i);
+                } else {
+                    startActivityForResult(new Intent(
+                            Settings.ACTION_WIFI_SETTINGS), 0);
+                }
+            } else {
+                startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
+            }
         } else if (id == R.id.invite) {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
@@ -351,8 +363,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "dhruvrathi15@gmail.com", null));
             startActivity(Intent.createChooser(i, "Send Email..."));
         } else if (id == R.id.aboutMe) {
-//            Intent i = new Intent(MainActivity1.this, AboutDeveloper.class);
-//            startActivity(i);
+            Intent i = new Intent(MainActivity.this, AboutDeveloper.class);
+            startActivity(i);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

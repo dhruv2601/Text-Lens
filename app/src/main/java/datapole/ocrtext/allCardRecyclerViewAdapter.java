@@ -72,7 +72,6 @@ public class allCardRecyclerViewAdapter
             } catch (IOException e) {
                 Log.e("login activity", "Can not read file: " + e.toString());
             }
-
             return ret;
         }
 
@@ -111,10 +110,16 @@ public class allCardRecyclerViewAdapter
                 public void onClick(View view) {
                     SharedPreferences pref = itemView.getContext().getSharedPreferences("txtURI", 0);
                     int ind = pref.getInt("ind", 0);
-                    String temp = pref.getString("filename" + String.valueOf(ind - 1 - getAdapterPosition()), null);
+                    String temp = pref.getString("path" + String.valueOf(ind - 1 - getAdapterPosition()), null);
+                    String temp1 = "";
                     temp += ".txt";
                     Uri uri = Uri.parse(temp);
                     Log.d(TAG, "uri:: " + uri);
+//                    for (int i = 7; i < temp.length(); i++) {
+//                        temp1 += temp.charAt(i);
+//                    }
+//                    Uri uri = Uri.parse(temp1);
+//                    Log.d(TAG, "uri:: " + uri);
 
                     String data = readFromFile(view.getContext(), String.valueOf(uri));
                     Log.d(TAG, "data: " + data);

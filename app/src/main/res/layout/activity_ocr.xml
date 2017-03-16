@@ -52,7 +52,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/red"
+            android:background="@color/colorAccent"
+            android:textColor="@color/white"
             android:text="SAVE TO DROPBOX"
             android:textSize="21dp" />
 
@@ -61,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/violet"
+            android:background="@color/red"
             android:text="SAVE AS TXT FILE"
             android:textSize="21dp" />
 

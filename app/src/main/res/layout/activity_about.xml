@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_about"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/backtry"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="datapole.ocrtext.AboutActivity">
+
+        <TextView
+            android:id="@+id/about_txt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp"
+            android:fontFamily="serif"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:text="Text Lens is an Optical Character Recognition(OCR) application that has an inbuilt scanning technology that automatically reads text from an image or a document and saves it in your personal Dropbox account and locally in your phone also, you can share tha document as a file or text itself.
+"
+            android:textColor="@color/black"
+            android:textIsSelectable="true"
+            android:textSize="22dp"
+            android:textStyle="bold" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/abt_dev"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black"
+        android:text="A b o u t     D e v e l o p e r"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
+</RelativeLayout>

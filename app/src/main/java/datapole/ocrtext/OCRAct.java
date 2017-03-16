@@ -26,23 +26,19 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.session.AccessTokenPair;
+import com.dropbox.client2.session.AppKeyPair;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 public class OCRAct extends AppCompatActivity {
 
-    public static final String PACKAGE_NAME = "datapole.ocrtext";
-    public static String DATA_PATH = Environment
-            .getExternalStorageDirectory().toString();
     public String dataSetUrl = "";
-    public static final String DATA_PATH_EXT_OCR = "/OCRText/";
-    public static final String DATA_PATH_EXT_BUS = "/BusinessCardScanner/";
-    public static final String lang = "eng";
     private static final String TAG = "OCRText.java";
     private EditText editText;
     private String ocrStr = "";
@@ -50,6 +46,22 @@ public class OCRAct extends AppCompatActivity {
     private AppCompatButton dropbox;
     private AppCompatButton txtFile;
     private AppCompatButton share;
+
+    final static private String APP_KEY = "80obijhq074fhxn";
+    final static private String APP_SECRET = "v22myjt9gq3f15i";
+
+    private static final String ACCOUNT_PREFS_NAME = "prefs";
+    private static final String ACCESS_KEY_NAME = "ACCESS_KEY";
+    private static final String ACCESS_SECRET_NAME = "ACCESS_SECRET";
+
+    DropboxAPI<AndroidAuthSession> mDBApi;
+    private AndroidAuthSession session;
+
+    private static final boolean USE_OAUTH1 = false;
+
+    private boolean mLoggedIn;
+    public int cmon = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +76,7 @@ public class OCRAct extends AppCompatActivity {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        initialize_session();
 
         listen = (FloatingActionButton) findViewById(R.id.fab_listen);
         editText = (EditText) findViewById(R.id.edt_txt);
@@ -71,105 +84,195 @@ public class OCRAct extends AppCompatActivity {
         txtFile = (AppCompatButton) findViewById(R.id.txtfile);
         share = (AppCompatButton) findViewById(R.id.share);
 
-        SharedPreferences txtURI = this.getSharedPreferences("txtURI", 0);
+        final SharedPreferences txtURI = this.getSharedPreferences("txtURI", 0);
         final int ind = txtURI.getInt("ind", 0);
         final SharedPreferences.Editor editor = txtURI.edit();
+        final String[] bhaiName = {""};
 
-        share.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        dropbox.setOnClickListener(new View.OnClickListener() {
+                                       @Override
+                                       public void onClick(View view) {
+                                           if (cmon == 0) {
 
-                shareIntent.setType("text/html");
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, ("https://play.google.com/store/apps/details?id=datapole.ocrtext" + "\n"));   // instead send the description here
+                                               cmon = 1;
 
-                shareIntent.putExtra(Intent.EXTRA_TEXT, editText.getText().toString());
-                OCRAct.this.startActivity(Intent.createChooser(shareIntent, "Share scanned text"));
-            }
-        });
+                                               final String[] str_name = {""};
+                                               final AlertDialog.Builder alert = new AlertDialog.Builder(OCRAct.this);
+                                               alert.setTitle("Save File");
+                                               alert.setMessage("Enter File Name");
+                                               alert.setIcon(R.drawable.appicon);
+                                               final EditText input = new EditText(OCRAct.this);
+                                               alert.setView(input);
+                                               final String[] fileName = {""};
+                                               alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                   public void onClick(DialogInterface dialog, int whichButton) {
+                                                       String srt = input.getText().toString();
+                                                       str_name[0] = srt;
+                                                       bhaiName[0] = srt;
 
-        txtFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                                                       mDBApi.getSession().startOAuth2Authentication(OCRAct.this);
 
-                final String[] str_name = {""};
-                AlertDialog.Builder alert = new AlertDialog.Builder(OCRAct.this);
-                alert.setTitle("Save File");
-                alert.setMessage("Enter File Name");
-                final EditText input = new EditText(OCRAct.this);
-                alert.setView(input);
-                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String srt = input.getText().toString();
-                        str_name[0] = srt;
+                                                       AlertDialog.Builder alert1 = new AlertDialog.Builder(OCRAct.this);
+                                                       alert1.setTitle("DROPBOX");
+                                                       alert1.setMessage("Log in into your Dropbox Account.");
+                                                       alert1.setIcon(R.drawable.dropbox);
+                                                       alert1.setCancelable(false);
+
+                                                       alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                           @Override
+                                                           public void onClick(DialogInterface dialogInterface, int i) {
+                                                               File file = new File("/storage/emulated/0/TextLens/" + bhaiName[0] + ".txt");
+
+                                                               UpToDropbox upToDropbox = new UpToDropbox(OCRAct.this, mDBApi, "", file);
+                                                               upToDropbox.execute();
+                                                               Toast.makeText(OCRAct.this, "Saved in Dropbox and in phone.", Toast.LENGTH_SHORT).show();
+                                                               txtFile.setVisibility(View.GONE);
+                                                           }
+                                                       });
+                                                       alert1.show();
 
 //                String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
-                        try {
-                            String path = "file:///storage/emulated/0/TextLens/" + str_name[0] + ".txt";
-                            String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
+                                                       try {
+                                                           String path = "file:///storage/emulated/0/TextLens/" + str_name[0] + ".txt";
+                                                           String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
 
-                            Log.d(TAG, "fileName: " + str_name[0]);
-                            editor.putString("filename" + String.valueOf(ind), str_name[0]);
-                            editor.putString("path" + String.valueOf(ind), path);         // first saved at 0
-                            editor.putString("uri" + String.valueOf(ind), String.valueOf(MainActivity.simpleURI));
-                            Log.d(TAG,"cropUri: "+String.valueOf(MainActivity.simpleURI));
-                            editor.putInt("ind", ind + 1);
-                            editor.putString("date" + ind, date);
-                            editor.commit();
+                                                           Log.d(TAG, "fileName: " + str_name[0]);
+                                                           editor.putString("filename" + String.valueOf(ind), str_name[0]);
+                                                           editor.putString("path" + String.valueOf(ind), path);         // first saved at 0
+                                                           editor.putString("uri" + String.valueOf(ind), String.valueOf(MainActivity.cropURI));
+                                                           Log.d(TAG, "cropUri: " + String.valueOf(MainActivity.cropURI));
+                                                           editor.putInt("ind", ind + 1);
+                                                           editor.putString("date" + ind, date);
+                                                           editor.commit();
 
-                            String fileName = str_name[0];
-                            String content = editText.getText().toString();
-                            try {
-                                File root = new File(Environment.getExternalStorageDirectory(), "TextLens");
-                                if (!root.exists()) {
-                                    root.mkdirs();
-                                }
-                                File gpxfile = new File(root, str_name[0] + ".txt");
-                                FileWriter writer = new FileWriter(gpxfile);
-                                writer.append(editText.getText().toString());
-                                writer.flush();
-                                writer.close();
-                                Toast.makeText(OCRAct.this, "Saved", Toast.LENGTH_SHORT).show();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                                                           fileName[0] = str_name[0];
+                                                           String content = editText.getText().toString();
+                                                           try {
+                                                               File root = new File(Environment.getExternalStorageDirectory(), "TextLens");
+                                                               if (!root.exists()) {
+                                                                   root.mkdirs();
+                                                               }
+                                                               File gpxfile = new File(root, str_name[0] + ".txt");
+                                                               FileWriter writer = new FileWriter(gpxfile);
+                                                               writer.append(editText.getText().toString());
+                                                               writer.flush();
+                                                               writer.close();
+                                                               Toast.makeText(OCRAct.this, "Saved", Toast.LENGTH_SHORT).show();
+                                                           } catch (IOException e) {
+                                                               e.printStackTrace();
+                                                           }
 
+                                                           Toast.makeText(getBaseContext(),
+                                                                   "File Saved",
+                                                                   Toast.LENGTH_SHORT).show();
+                                                       } catch (Exception e) {
+                                                           Toast.makeText(getBaseContext(), e.getMessage(),
+                                                                   Toast.LENGTH_SHORT).show();
+                                                       }
+                                                   }
+                                               });
+                                               alert.show();
 
-//                            FileOutputStream outputStream = null;
-//                            try {
-//                                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
-//                                outputStream.write(content.getBytes());
-//                                outputStream.close();
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
+                                               // isse pehle jara file ka nam input kra lio and then use that in DropBoxFilePath
+                                           }
+//                                           else {
+//                                               File file = new File("/storage/emulated/0/TextLens/" + bhaiName[0] + ".txt");
+//
+//                                               UpToDropbox upToDropbox = new UpToDropbox(OCRAct.this, mDBApi, "", file);
+//                                               upToDropbox.execute();
+//                                               Toast.makeText(OCRAct.this, "Saved in Dropbox and in phone.", Toast.LENGTH_SHORT).show();
+//                                               txtFile.setVisibility(View.GONE);
+//                                           }
+                                       }
+                                   }
+        );
 
+        share.setOnClickListener(new View.OnClickListener()
 
-//                    File myFile = new File(path);                                   //  check here
-//                    myFile.createNewFile();
-//                    FileOutputStream fOut = new FileOutputStream(myFile);
-//                    OutputStreamWriter myOutWriter =
-//                            new OutputStreamWriter(fOut);
-//                    myOutWriter.append(editText.getText().toString());
-//                    myOutWriter.close();
-//                    fOut.close();
-                            Toast.makeText(getBaseContext(),
-                                    "File Saved",
-                                    Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            Toast.makeText(getBaseContext(), e.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                alert.show();
-            }
-        });
+                                 {
+                                     @Override
+                                     public void onClick(View view) {
+                                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+                                         shareIntent.setType("text/html");
+                                         shareIntent.setType("text/plain");
+                                         shareIntent.putExtra(Intent.EXTRA_SUBJECT, ("https://play.google.com/store/apps/details?id=datapole.ocrtext" + "\n"));   // instead send the description here
+
+                                         shareIntent.putExtra(Intent.EXTRA_TEXT, editText.getText().toString());
+                                         OCRAct.this.startActivity(Intent.createChooser(shareIntent, "Share scanned text"));
+                                     }
+                                 }
+
+        );
+
+        txtFile.setOnClickListener(new View.OnClickListener()
+
+                                   {
+                                       @Override
+                                       public void onClick(View view) {
+
+                                           final String[] str_name = {""};
+                                           AlertDialog.Builder alert = new AlertDialog.Builder(OCRAct.this);
+                                           alert.setTitle("Save File");
+                                           alert.setMessage("Enter File Name");
+                                           final EditText input = new EditText(OCRAct.this);
+                                           alert.setView(input);
+                                           alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                               public void onClick(DialogInterface dialog, int whichButton) {
+                                                   String srt = input.getText().toString();
+                                                   str_name[0] = srt;
+
+//                String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
+                                                   try {
+                                                       String path = "file:///storage/emulated/0/TextLens/" + str_name[0] + ".txt";
+                                                       String date = (DateFormat.format("dd-MM-yyyy hh:mm:ss", new java.util.Date()).toString());
+
+                                                       Log.d(TAG, "fileName: " + str_name[0]);
+                                                       editor.putString("filename" + String.valueOf(ind), str_name[0]);
+                                                       editor.putString("path" + String.valueOf(ind), path);         // first saved at 0
+                                                       editor.putString("uri" + String.valueOf(ind), String.valueOf(MainActivity.cropURI));
+                                                       Log.d(TAG, "cropUri: " + String.valueOf(MainActivity.cropURI));
+                                                       editor.putInt("ind", ind + 1);
+                                                       editor.putString("date" + ind, date);
+                                                       editor.commit();
+
+                                                       String fileName = str_name[0];
+                                                       String content = editText.getText().toString();
+                                                       try {
+                                                           File root = new File(Environment.getExternalStorageDirectory(), "TextLens");
+                                                           if (!root.exists()) {
+                                                               root.mkdirs();
+                                                           }
+                                                           File gpxfile = new File(root, str_name[0] + ".txt");
+                                                           FileWriter writer = new FileWriter(gpxfile);
+                                                           writer.append(editText.getText().toString());
+                                                           writer.flush();
+                                                           writer.close();
+                                                           Toast.makeText(OCRAct.this, "Saved", Toast.LENGTH_SHORT).show();
+                                                       } catch (IOException e) {
+                                                           e.printStackTrace();
+                                                       }
+
+                                                       Toast.makeText(getBaseContext(),
+                                                               "File Saved",
+                                                               Toast.LENGTH_SHORT).show();
+                                                   } catch (Exception e) {
+                                                       Toast.makeText(getBaseContext(), e.getMessage(),
+                                                               Toast.LENGTH_SHORT).show();
+                                                   }
+                                               }
+                                           });
+                                           alert.show();
+                                       }
+                                   }
+
+        );
 
         SharedPreferences pref = this.getSharedPreferences("engDataSet", 0);
         dataSetUrl = pref.getString("dataSetUrl", "");
-        if (dataSetUrl.equals("")) {
+        if (dataSetUrl.equals(""))
+
+        {
             new AlertDialog.Builder(OCRAct.this).setTitle("Language Data Not Found").setMessage("Go to language settings and download the language data")
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -179,25 +282,154 @@ public class OCRAct extends AppCompatActivity {
         }
 
         final int[] flag = {0};
-        listen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (flag[0] == 1) {
-                    MainActivity.t1.stop();
+        listen.setOnClickListener(new View.OnClickListener()
 
-                } else {
-                    flag[0] = 1;
-                    if (ocrStr == "") {
-                        MainActivity.t1.speak("No text present", TextToSpeech.QUEUE_ADD, null);
-                    } else {
-                        String temp = ocrStr.replaceAll("[^a-zA-Z0-9]+", " ");
-                        MainActivity.t1.speak(temp, TextToSpeech.QUEUE_ADD, null);
-                    }
-                }
-            }
-        });
-        new extractOCR().execute();
+                                  {
+                                      @Override
+                                      public void onClick(View view) {
+                                          if (flag[0] == 1) {
+                                              MainActivity.t1.stop();
+
+                                          } else {
+                                              flag[0] = 1;
+                                              if (ocrStr == "") {
+                                                  MainActivity.t1.speak("No text present", TextToSpeech.QUEUE_ADD, null);
+                                              } else {
+                                                  String temp = ocrStr.replaceAll("[^a-zA-Z0-9]+", " ");
+                                                  MainActivity.t1.speak(temp, TextToSpeech.QUEUE_ADD, null);
+                                              }
+                                          }
+                                      }
+                                  }
+
+        );
+        new
+
+                extractOCR()
+
+                .
+
+                        execute();
     }
+
+    private AndroidAuthSession buildSession() {
+        AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);
+
+        AndroidAuthSession session = new AndroidAuthSession(appKeyPair);
+        loadAuth(session);
+        return session;
+    }
+
+    private void logOut() {
+        // Remove credentials from the session
+        mDBApi.getSession().unlink();
+    }
+
+
+    private void loadAuth(AndroidAuthSession session) {
+        String key = APP_KEY;
+        String secret = APP_SECRET;
+        if (key == null || secret == null || key.length() == 0 || secret.length() == 0) return;
+
+        if (key.equals("oauth2:")) {
+            // If the key is set to "oauth2:", then we can assume the token is for OAuth 2.
+            session.setOAuth2AccessToken(secret);
+        } else {
+            // Still support using old OAuth 1 tokens.
+            session.setAccessTokenPair(new AccessTokenPair(key, secret));
+        }
+    }
+
+    protected void initialize_session() {
+        // store app key and secret key
+        AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+
+        AndroidAuthSession session = buildSession();
+        mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AndroidAuthSession session = mDBApi.getSession();
+
+        // The next part must be inserted in the onResume() method of the
+        // activity from which session.startAuthentication() was called, so
+        // that Dropbox authentication completes properly.
+        if (session.authenticationSuccessful()) {
+            try {
+                // Mandatory call to complete the auth
+                session.finishAuthentication();
+
+                // Store it locally in our app for later use
+                storeAuth(session);
+                setLoggedIn(true);
+            } catch (IllegalStateException e) {
+                showToast("Couldn't authenticate with Dropbox:" + e.getLocalizedMessage());
+                Log.i(TAG, "Error authenticating", e);
+            }
+        }
+    }
+
+    private void showToast(String msg) {
+        Toast error = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+        error.show();
+    }
+
+    private void setLoggedIn(boolean loggedIn) {
+        mLoggedIn = loggedIn;
+//        if (loggedIn) {
+//            mSubmit.setText("Unlink from Dropbox");
+//            mDisplay.setVisibility(View.VISIBLE);
+//        } else {
+//            mSubmit.setText("Link with Dropbox");
+//            mDisplay.setVisibility(View.GONE);
+//            mImage.setImageDrawable(null);
+//        }
+    }
+
+    private void storeAuth(AndroidAuthSession session) {
+        // Store the OAuth 2 access token, if there is one.
+        String oauth2AccessToken = session.getOAuth2AccessToken();
+        if (oauth2AccessToken != null) {
+            SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString(ACCESS_KEY_NAME, "oauth2:");
+            edit.putString(ACCESS_SECRET_NAME, oauth2AccessToken);
+            edit.commit();
+            return;
+        }
+        // Store the OAuth 1 access token, if there is one.  This is only necessary if
+        // you're still using OAuth 1.
+        AccessTokenPair oauth1AccessToken = session.getAccessTokenPair();
+        if (oauth1AccessToken != null) {
+            SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString(ACCESS_KEY_NAME, oauth1AccessToken.key);
+            edit.putString(ACCESS_SECRET_NAME, oauth1AccessToken.secret);
+            edit.commit();
+            return;
+        }
+    }
+
+
+//    protected void onResume() {
+//        super.onResume();
+//
+//        if (mDBApi.getSession().authenticationSuccessful()) {
+//            try {
+//
+//                // Required to complete auth, sets the access token on the session
+//                mDBApi.getSession().finishAuthentication();
+//
+//                // retrieve access token
+//                String accessToken = mDBApi.getSession().getOAuth2AccessToken();
+//
+//            } catch (IllegalStateException e) {
+//                Log.i(TAG, "Error authenticating:: " + e);
+//            }
+//        }
+//    }
 
     private Bitmap GetBinaryBitmap(Bitmap bitmap_src) {
         Bitmap bitmap_new = bitmap_src.copy(bitmap_src.getConfig(), true);
