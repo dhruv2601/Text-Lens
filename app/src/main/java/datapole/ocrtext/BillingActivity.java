@@ -1,9 +1,13 @@
 package datapole.ocrtext;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,6 +47,8 @@ public class BillingActivity extends AppCompatActivity implements BillingProcess
 
     private TextView txt;
     private ProgressBar pBar;
+    public boolean b;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,19 +68,36 @@ public class BillingActivity extends AppCompatActivity implements BillingProcess
         settingsDialog.show();
         Toast.makeText(this, "PRESS BACK ONCE.", Toast.LENGTH_LONG).show();
 
-        price = new ArrayList<>();
-        price.add(0, "0");
-        price.add(1, "0");
-        price.add(2, "0");
-        price.add(3, "0");
-        mRecyclerView = (RecyclerView) findViewById(R.id.bill_type_rv);
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new BillingRVAdapter(price);
-        mRecyclerView.setAdapter(mAdapter);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
 
-        bp = new BillingProcessor(this, getString(R.string.play_billing_license_key), this);
+        if (b) {
+            ConnectivityManager connectivityManager1 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetworkInfo1 = connectivityManager1.getActiveNetworkInfo();
+
+            b = (activeNetworkInfo1 != null && activeNetworkInfo1.isConnectedOrConnecting());
+            if (b) {
+                price = new ArrayList<>();
+                price.add(0, "0");
+                price.add(1, "0");
+                price.add(2, "0");
+                price.add(3, "0");
+                mRecyclerView = (RecyclerView) findViewById(R.id.bill_type_rv);
+                mRecyclerView.setHasFixedSize(true);
+                mLayoutManager = new LinearLayoutManager(this);
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mAdapter = new BillingRVAdapter(price);
+                mRecyclerView.setAdapter(mAdapter);
+
+                bp = new BillingProcessor(this, getString(R.string.play_billing_license_key), this);
+            } else {
+                startActivityForResult(new Intent(
+                        Settings.ACTION_WIFI_SETTINGS), 0);
+            }
+        } else {
+            startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
+        }
     }
 
     @Override

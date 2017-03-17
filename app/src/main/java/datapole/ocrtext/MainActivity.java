@@ -43,6 +43,8 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -70,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    public boolean b;
 
     public ActionBarDrawerToggle toggle;
 
@@ -83,11 +84,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sref = MainActivity.this.getSharedPreferences("entered", 0);
         SharedPreferences.Editor editor1 = sref.edit();
         if (sref.getBoolean("entered", false) == false) {
-//            editor1.putBoolean("entered",true);
+//            editor1.putBoolean("entered", true);
+//            editor1.putInt("status", 2601);
+//            editor1.commit();
+
             Intent i = new Intent(MainActivity.this, ActivityIntro.class);
             startActivity(i);
         }
-
 
         mRecyclerView = (RecyclerView) findViewById(R.id.all_cards_list_rv);
         mRecyclerView.setHasFixedSize(true);
@@ -98,10 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
         fabDon = (FloatingActionButton) findViewById(R.id.fab_donate);
         fabGall = (FloatingActionButton) findViewById(R.id.fab_gall);
-
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
 
         t1 = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -119,10 +118,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT)
-                startActivityForResult(intent, CAMERA_REQUEST);
+////                Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+////                intent.putExtra(MediaStore.EXTRA_OUTPUT)
+//                startActivityForResult(intent, CAMERA_REQUEST);
+
+                Intent photo = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                Uri uri = Uri.parse("file:///sdcard/photo.jpg");
+                photo.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+                startActivityForResult(photo, CAMERA_REQUEST);
             }
         });
 
@@ -154,12 +158,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences.Editor editor = sref.edit();
         pDialog = new ProgressDialog(this);
 
+//        if (sref.getInt("status", 0) != 2601) {
         if (sref.getBoolean("entered", false) == false) {
+            editor1.putBoolean("entered", true);
+            editor1.putInt("status", 2601);
+            editor1.commit();
+
             Log.d(TAG, "first Time installation");
+            editor.putInt("status", -2);
+            editor.apply();
 
             File file = new File(Environment.getExternalStorageDirectory().toString() + "/BusinessCardScanner/tessdata");
             if (file.exists()) {
-//                Toast.makeText(this, "Data exists", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Data exists", Toast.LENGTH_SHORT).show();
                 SharedPreferences pref2 = this.getSharedPreferences("engDataSet", 0);
                 SharedPreferences.Editor edit = pref2.edit();
                 edit.putString("dataSetUrl", "file:///storage/emulated/0/mounted/tessdata/eng.traineddata");
@@ -187,14 +198,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 "tessdata/eng.traineddata");
                 enqueue = dm.enqueue(request);
                 hasEntered = false;
-                editor.putBoolean("entered", true);
-                editor.apply();
             }
 //            Intent i = new Intent(MainActivity1.this, ActivityIntro.class);
 //            startActivity(i);
         } else {
             hasEntered = true;
         }
+
+        editor.putInt("status", -1);
+        editor.apply();
+
+//        if (sref.getInt("status", -2) == -1) {
+//            Toast.makeText(this, "Please re-open when using first time.", Toast.LENGTH_LONG).show();
+//            t1.shutdown();
+//            MainActivity.this.finish();
+//        }
 
         BroadcastReceiver receiver1 = new BroadcastReceiver() {
             @Override
@@ -256,14 +274,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Intent newIntent = new Intent(MainActivity.this, OCRAct.class);
 
-        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-            Bitmap bitmap = (Bitmap) data.getExtras().get("data");//this is your bitmap image and now you can do whatever you want with this
-            Uri imageUri = data.getData();
-            simpleURI = imageUri;
-            Log.d(TAG, "imageURI: " + imageUri);
-            CropImage.activity(imageUri)                    // starting a new crop image activity
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .start(this);
+//        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+//            Bitmap bitmap = (Bitmap) data.getExtras().get("data");//this is your bitmap image and now you can do whatever you want with this
+//            Uri imageUri = data.getData();
+//            simpleURI = imageUri;
+//            Log.d(TAG, "imageURI: " + imageUri);
+//            CropImage.activity(imageUri)                    // starting a new crop image activity
+//                    .setGuidelines(CropImageView.Guidelines.ON)
+//                    .start(this);
+//        }
+
+        if (requestCode == CAMERA_REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
+                File file = new File(Environment.getExternalStorageDirectory().getPath(), "photo.jpg");
+                Uri imageUri = Uri.fromFile(file);
+                Bitmap bitmap;
+                simpleURI = imageUri;
+                Log.d(TAG, "imageURI: " + imageUri);
+                CropImage.activity(imageUri)                    // starting a new crop image activity
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(this);
+
+//                try {
+//                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                    bitmap = crupAndScale(bitmap, 300); // if you mind scaling
+//                    pofileImageView.setImageBitmap(bitmap);
+
+            }
         }
 
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
@@ -325,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (toggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
@@ -345,21 +384,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent i = new Intent(this, AboutActivity.class);
             startActivity(i);
         } else if (id == R.id.buy_cards) {
-            if (b) {
-                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-
-                b = (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
-                if (b) {
-                    Intent i = new Intent(this, BillingActivity.class);
-                    startActivity(i);
-                } else {
-                    startActivityForResult(new Intent(
-                            Settings.ACTION_WIFI_SETTINGS), 0);
-                }
-            } else {
-                startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
-            }
+            Intent i = new Intent(MainActivity.this, BillingActivity.class);
+            startActivity(i);
         } else if (id == R.id.invite) {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
