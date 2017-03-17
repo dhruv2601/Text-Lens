@@ -83,14 +83,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences sref;
         sref = MainActivity.this.getSharedPreferences("entered", 0);
         SharedPreferences.Editor editor1 = sref.edit();
-        if (sref.getBoolean("entered", false) == false) {
-//            editor1.putBoolean("entered", true);
-//            editor1.putInt("status", 2601);
-//            editor1.commit();
-
-            Intent i = new Intent(MainActivity.this, ActivityIntro.class);
-            startActivity(i);
-        }
+//        if (sref.getBoolean("entered", false) == false) {
+////            editor1.putBoolean("entered", true);
+////            editor1.putInt("status", 2601);
+////            editor1.commit();
+//
+//            Intent i = new Intent(MainActivity.this, ActivityIntro.class);
+//            startActivity(i);
+//        }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.all_cards_list_rv);
         mRecyclerView.setHasFixedSize(true);
@@ -179,11 +179,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // BC Scanner ka engDataSet hai phone mn, no need to download, save it in SharedPref(only once XD)
             } else {
                 pDialog.setIcon(R.drawable.appicon);
-                pDialog.setMessage("Downloading file. Please wait...");
+                pDialog.setMessage("Downloading file for English Language. Please wait...");
                 pDialog.setIndeterminate(false);
-                pDialog.setMax(100);
-                pDialog.incrementProgressBy(5);
-                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//                pDialog.setMax(100);
+//                pDialog.incrementProgressBy(5);
+//                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 pDialog.setCancelable(false);
                 pDialog.show();
 

@@ -1,6 +1,7 @@
 package datapole.ocrtext;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
@@ -31,5 +32,13 @@ public class ActivityIntro extends IntroActivity {
                 .backgroundDark(R.color.red)
                 .permissions(perm)
                 .build());
+    }
+
+    @Override
+    public void finish() {
+        Intent i = new Intent(ActivityIntro.this, MainActivity.class);
+        startActivity(i);
+
+        super.finish();
     }
 }

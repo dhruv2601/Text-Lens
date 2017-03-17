@@ -300,15 +300,8 @@ public class OCRAct extends AppCompatActivity {
                                           }
                                       }
                                   }
-
         );
-        new
-
-                extractOCR()
-
-                .
-
-                        execute();
+        new extractOCR().execute();
     }
 
     private AndroidAuthSession buildSession() {
