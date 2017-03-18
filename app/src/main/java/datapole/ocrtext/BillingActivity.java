@@ -27,6 +27,12 @@ import com.anjlab.android.iab.v3.TransactionDetails;
 import java.util.ArrayList;
 import java.util.List;
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class BillingActivity extends AppCompatActivity implements BillingProcessor.IBillingHandler{
 
     private static final String TAG = "BillingAct";

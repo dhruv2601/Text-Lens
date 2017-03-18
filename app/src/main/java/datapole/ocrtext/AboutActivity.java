@@ -8,6 +8,12 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class AboutActivity extends AppCompatActivity {
 
     private AppCompatButton abt_me;

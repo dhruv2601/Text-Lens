@@ -36,6 +36,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class OCRAct extends AppCompatActivity {
 
     public String dataSetUrl = "";

@@ -4,7 +4,7 @@
     <item
         android:id="@+id/about"
         android:icon="@drawable/viewimg"
-        android:title="About Text Lenas" />
+        android:title="About Text Lens" />
     <item
         android:id="@+id/buy_cards"
         android:icon="@drawable/buyingcards"

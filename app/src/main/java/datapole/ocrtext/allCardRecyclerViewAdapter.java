@@ -28,6 +28,12 @@ import java.util.ArrayList;
  * Created by dhruv on 15/3/17.
  */
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class allCardRecyclerViewAdapter
         extends RecyclerView
         .Adapter<allCardRecyclerViewAdapter

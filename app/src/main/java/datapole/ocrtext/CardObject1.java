@@ -4,6 +4,12 @@ package datapole.ocrtext;
  * Created by dhruv on 30/12/16.
  */
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class CardObject1 {
     private String mDrawableImage;
     private String txtName;

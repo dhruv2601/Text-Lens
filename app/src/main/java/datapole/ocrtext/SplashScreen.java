@@ -10,6 +10,12 @@ import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 
 import me.wangyuwei.particleview.ParticleView;
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class SplashScreen extends AppCompatActivity {
 
     @Override

@@ -22,11 +22,12 @@ import com.dropbox.client2.exception.DropboxPartialFileException;
 import com.dropbox.client2.exception.DropboxServerException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
 
-/**
- * Here we show uploading a file in a background thread, trying to show
- * typical exception handling and flow of control for an app that uploads a
- * file from Dropbox.
- */
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class UpToDropbox extends AsyncTask<Void, Long, Boolean> {
 
     private DropboxAPI<?> mApi;

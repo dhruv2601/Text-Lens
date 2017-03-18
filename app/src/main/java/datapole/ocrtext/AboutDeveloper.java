@@ -9,6 +9,12 @@ import android.widget.ImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class AboutDeveloper extends AppCompatActivity {
 
     @Override

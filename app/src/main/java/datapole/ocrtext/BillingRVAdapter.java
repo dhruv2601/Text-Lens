@@ -14,6 +14,12 @@ import java.util.ArrayList;
  * Created by dhruv on 3/1/17.
  */
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class BillingRVAdapter extends RecyclerView
         .Adapter<BillingRVAdapter
         .DataObjectHolder> {

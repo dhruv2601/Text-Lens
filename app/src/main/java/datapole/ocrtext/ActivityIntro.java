@@ -7,6 +7,12 @@ import android.os.Bundle;
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
 
+/* Copyright: You can use the code as you want, just let me know about it :).
+*
+*  email: dhruvrathi15@gmail.com
+*
+*/
+
 public class ActivityIntro extends IntroActivity {
 
     @Override
@@ -18,7 +24,7 @@ public class ActivityIntro extends IntroActivity {
 
         addSlide(new SimpleSlide.Builder()
                 .title("How To Scan")
-                .description("Hold the document so that the text is vertical with respect to you.")
+                .description("Hold the document so that the text is vertical with respect to you." + "\n" + "Ensure PROPER LIGHTING when scanning the document.")
                 .image(R.drawable.vertical)
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.teal)
